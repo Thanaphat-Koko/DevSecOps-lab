@@ -33,6 +33,7 @@ sudo systemctl enable containerd
 
 # 8. ปิด swap (kubeadm ไม่รองรับ swap)
 sudo swapoff -a
+sudo free -h
 sudo sed -i '/ swap / s/^/#/' /etc/fstab
 
 # 9. เปิด module จำเป็น
