@@ -56,7 +56,7 @@ echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.
 sudo apt update
 
 # 12. ติดตั้ง kubelet kubeadm kubectl
-sudo apt install -y kubelet kubeadm kubectl
+sudo apt install -y kubelet kubeadm kubectl nfs-common
 
 # 13. Hold เวอร์ชันไว้ ไม่ให้อัพเดทผิด
 sudo apt-mark hold kubelet kubeadm kubectl
