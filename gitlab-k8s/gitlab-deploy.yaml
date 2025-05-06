@@ -1,0 +1,29 @@
+global:
+  edition: ce
+  hosts:
+    domain: k8s.local
+    externalIP: 172.26.5.81  # the public or private IP of your node
+    https: false
+  ingress:
+    enabled: false  # Add this to disable ingress if not needed
+    configureCertmanager: false
+    tls:
+      enabled: false
+    class: ""  # This can remain empty if ingress is disabled
+
+nginx-ingress:
+  enabled: false
+
+certmanager:
+  install: false
+
+gitlab:
+  webservice:
+    service:
+      type: NodePort
+
+postgresql:
+  install: true
+
+redis:
+  install: true

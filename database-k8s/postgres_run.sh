@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -e
 
 echo "🔐 [1/4] สร้าง Secret สำหรับ PostgreSQL password..."
