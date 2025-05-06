@@ -58,6 +58,13 @@ sudo dnf install -y kubelet kubeadm kubectl nfs-utils dnf-plugin-versionlock
 # 13. Hold เวอร์ชันไว้ (ป้องกันการอัปเดต)
 sudo dnf versionlock add kubelet kubeadm kubectl
 
+# 14. Enable firewall ports
+sudo firewall-cmd --permanent --add-port=6443/tcp
+sudo firewall-cmd --permanent --add-port=10250/tcp
+sudo firewall-cmd --permanent --add-port=10259/tcp
+sudo firewall-cmd --permanent --add-port=10257/tcp
+sudo firewall-cmd --reload
+
 # 14. เปิดใช้งาน kubelet
 sudo systemctl enable --now kubelet
 
