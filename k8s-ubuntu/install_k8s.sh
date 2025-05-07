@@ -5,7 +5,7 @@ set -e
 sudo apt update && sudo apt upgrade -y
 
 # 2. ติดตั้ง dependency
-sudo apt install -y apt-transport-https ca-certificates curl gnupg lsb-release
+sudo apt install -y apt-transport-https ca-certificates curl gnupg lsb-release 
 
 # 3. เพิ่ม Docker repo (เพื่อดึง containerd ใหม่)
 sudo mkdir -p /etc/apt/keyrings
@@ -57,7 +57,9 @@ echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.
 sudo apt update
 
 # 12. ติดตั้ง kubelet kubeadm kubectl
-sudo apt install -y kubelet kubeadm kubectl nfs-common
+sudo apt install -y kubelet kubeadm kubectl nfs-common open-iscsi
+
+sudo systemctl enable --now iscsid
 
 # 13. Hold เวอร์ชันไว้ ไม่ให้อัพเดทผิด
 sudo apt-mark hold kubelet kubeadm kubectl
