@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+sudo systemctl stop firewalld.service
+sudo systemctl disable firewalld.service
+
 # 1. Update ระบบ
 sudo dnf update -y
 
@@ -28,14 +31,19 @@ sudo systemctl enable containerd
 sudo swapoff -a
 sudo sed -i '/ swap / s/^/#/' /etc/fstab
 sudo free -h
+grep swap /etc/fstab > swap-log.txt
 
 # 9. เปิด kernel module จำเป็น
 sudo cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
 overlay
 br_netfilter
 EOF
+
 sudo modprobe overlay
 sudo modprobe br_netfilter
+
+# Set permanent
+sh -c 'echo "br_netfilter" > /etc/modules-load.d/br_netfilter.conf'
 
 # 10. ตั้งค่า sysctl สำหรับ Kubernetes
 cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
@@ -44,7 +52,29 @@ net.bridge.bridge-nf-call-ip6tables = 1
 net.ipv4.ip_forward = 1
 EOF
 
+/sbin/sysctl -p /etc/sysctl.d/k8s.conf
+
 sudo sysctl --system
+
+# Tuning. Mor infomation see tuning.
+cat <<EOF | sudo tee /etc/sysctl.d/90-sys-tuning.conf > /dev/null
+# Additional sysctl flags that kubelet expects
+kernel.panic = 10
+kernel.panic_on_oops = 1
+vm.overcommit_memory = 1
+
+net.core.somaxconn = 65535
+EOF
+
+cat <<EOF | sudo tee /etc/sysctl.d/90-net-tuning.conf > /dev/null
+# Tweak Network
+net.core.somaxconn = 65535
+net.ipv4.tcp_max_syn_backlog = 8096
+net.netfilter.nf_conntrack_max = 1048576
+
+EOF
+
+sysctl --system
 
 # 11. เพิ่ม Kubernetes repo
 cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
@@ -57,17 +87,12 @@ gpgkey=https://pkgs.k8s.io/core:/stable:/v1.31/rpm/repodata/repomd.xml.key
 EOF
 
 # 12. ติดตั้ง kubelet kubeadm kubectl
-sudo dnf install -y kubelet kubeadm kubectl nfs-utils dnf-plugin-versionlock
+sudo dnf install -y kubelet kubeadm kubectl nfs-utils dnf-plugin-versionlock iscsi-initiator-utils
 
 # 13. Hold เวอร์ชันไว้ (ป้องกันการอัปเดต)
 sudo dnf versionlock add kubelet kubeadm kubectl
 
-# 14. Enable firewall ports
-# sudo firewall-cmd --permanent --add-port=6443/tcp
-# sudo firewall-cmd --permanent --add-port=10250/tcp
-# sudo firewall-cmd --permanent --add-port=10259/tcp
-# sudo firewall-cmd --permanent --add-port=10257/tcp
-# sudo firewall-cmd --reload
+sudo systemctl enable --now iscsid
 
 # 14. เปิดใช้งาน kubelet
 sudo systemctl enable --now kubelet
