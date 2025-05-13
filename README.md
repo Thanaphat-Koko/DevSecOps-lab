@@ -1,3 +1,7 @@
 ## Instruction for install HA K8s
-
-https://chatgpt.com/share/6814328e-0770-800d-869c-e16550560f91
+# Step for k8s
+- k8s
+- Calico CNI
+- helm
+- metallb
+- longhorn
